@@ -31,3 +31,5 @@ if __name__ == '__main__':
     									how='left',
     									on="player_id", 
     									)
+    print('Summary statistics of FanDual points by position')
+    print(player_game_points.groupby('position').offensive_points.describe())
