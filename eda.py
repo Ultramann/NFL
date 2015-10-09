@@ -3,6 +3,17 @@ import nfldb_tables
 import matplotlib.pyplot as plt
 
 
+def check_player_table(player):
+    '''
+    Input:  Player DataFrame
+    Output: None
+
+    Prints whether or not all of the players without a known position are also of unknown status
+    '''
+    unknowns = player.query('position == "UNK"').status == 'Unknown'
+    truth = all(unknowns.values)
+    print 'All of the position UNKs have Unknown status: {}'.format(truth)
+
 
 def fandual_points_offense(in_df):
     '''
@@ -63,23 +74,33 @@ def graph_offence_stats_summary(player_game_points, verbose=False, bins=50):
     plt.show()
 
 
-def check_player_table(player):
+def get_year_week_frame(game, play_player, player, year, week, season_type='Regular'):
     '''
-    Input:  Player DataFrame
-    Output: None
+    Input:  DataFrame of games, DataFrame for play_player, DataFrame of players, Int, Int, Str
+    Output: DataFrame of stats for a single week
 
-    Prints whether or not all of the players without a known position are also of unknown status
+    Returns DataFrame with all players aggregated stats from a specifc year and week
     '''
-    unknowns = player.query('position == "UNK"').status == 'Unknown'
-    truth = all(unknowns.values)
-    print 'All of the position UNKs have Unknown status: {}'.format(truth)
+    # Make DataFrame games from the specified year, season type and week
+    week_columns = ['gsis_id', 'home_team', 'away_team']
+    week_df = game.query('season_type == @season_type & season_year == @year & week == @week')
+
+    # Get all of the play information for all of those games
+    super_week_df = week_df[week_columns].merge(play_player, how='left', on='gsis_id')
+    agg_week_df = super_week_df.groupby('player_id', as_index=False).sum()
+
+    # Add in the names of the players from the player frame
+    player_columns = ['player_id', 'full_name']
+    agg_week_names_df = agg_week_df.merge(player[player_columns], how='left', on='player_id')
+
+    return agg_week_names_df.set_index('full_name')
 
 
 if __name__ == '__main__':
-    games, pp, player = nfldb_tables.get(['game', 'play_player', 'player'])
+    game, pp, player = nfldb_tables.get(['game', 'play_player', 'player'])
     check_player_table(player)
     pp['offensive_points'] = fandual_points_offense(pp)
-    player_game_points = make_player_game_points(games, pp, player)
-    player_game_points_2014 = make_player_game_points(games, pp, player, year=2014)
+    player_game_points = make_player_game_points(game, pp, player)
+    player_game_points_2014 = make_player_game_points(game, pp, player, year=2014)
     graph_offence_stats_summary(player_game_points)
 
