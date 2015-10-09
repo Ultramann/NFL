@@ -23,7 +23,25 @@ def fandual_points_offense(in_df):
 
     return fandual_points
 
-def graph_offence_stats_summary(player_game_points, verbose=False):
+
+def make_player_game_points(g, pp_df, p_df, year=None):
+    '''
+    Input:  DataFrame of games, DataFame of play_player, DataFame of players, Int of year
+    Output: DataFrame with aggregated fanduel points for players, 
+            optionally, who played in a given year
+    '''
+    year_query = 'season_year == @year' if year else 'season_year > 0' 
+    pp = pp_df.merge(right=g[['gsis_id', 'season_year']], how='left', on='gsis_id').query(year_query)
+    game_points = pp.groupby(['player_id', 'gsis_id'], as_index=False).offensive_points.sum()
+    player_game_points = game_points.merge(
+                                           right=p_df[['player_id', 'full_name', 'position']],
+                                           how='left', 
+                                           on='player_id',
+                                          )
+    return player_game_points
+
+
+def graph_offence_stats_summary(player_game_points, verbose=False, bins=50):
     '''
     Input:  DataFrame of player point per game
     Output: None
@@ -40,7 +58,7 @@ def graph_offence_stats_summary(player_game_points, verbose=False):
     plt.figure(figsize=(15, 8))
     for i, pos in enumerate(offensive_gb, 1):
         plt.subplot(2, 3, i)
-        plt.hist(pos[1].values)
+        plt.hist(pos[1].values, bins)
         plt.title(pos[0])
     plt.show()
 
@@ -48,10 +66,6 @@ def graph_offence_stats_summary(player_game_points, verbose=False):
 if __name__ == '__main__':
     games, pp, player = nfldb_tables.get(['game', 'play_player', 'player'])
     pp['offensive_points'] = fandual_points_offense(pp)
-    game_points = pp.groupby(['player_id', 'gsis_id'], as_index=False).offensive_points.sum()
-    player_game_points = game_points.merge(
-                                           right=player['player_id', 'full_name', 'position'],
-                                           how='left', 
-                                           on='player_id',
-                                          )
+    player_game_points = make_player_game_points(games, pp, player, year=2014)
     graph_offence_stats_summary(player_game_points)
+
