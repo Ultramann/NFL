@@ -63,9 +63,23 @@ def graph_offence_stats_summary(player_game_points, verbose=False, bins=50):
     plt.show()
 
 
+def check_player_table(player):
+    '''
+    Input:  Player DataFrame
+    Output: None
+
+    Prints whether or not all of the players without a known position are also of unknown status
+    '''
+    unknowns = player.query('position == "UNK"').status == 'Unknown'
+    truth = all(unknowns.values)
+    print 'All of the position UNKs have Unknown status: {}'.format(truth)
+
+
 if __name__ == '__main__':
     games, pp, player = nfldb_tables.get(['game', 'play_player', 'player'])
+    check_player_table(player)
     pp['offensive_points'] = fandual_points_offense(pp)
-    player_game_points = make_player_game_points(games, pp, player, year=2014)
+    player_game_points = make_player_game_points(games, pp, player)
+    player_game_points_2014 = make_player_game_points(games, pp, player, year=2014)
     graph_offence_stats_summary(player_game_points)
 
