@@ -77,7 +77,7 @@ def graph_offence_stats_summary(player_game_points, verbose=False, bins=50):
 def get_year_week_frame(game, play_player, player, year, week, season_type='Regular'):
     '''
     Input:  DataFrame of games, DataFrame for play_player, DataFrame of players, Int, Int, Str
-    Output: DataFrame of stats for a single week
+    Output: DataFrame of stats for a given week
 
     Returns DataFrame with all players aggregated stats from a specifc year and week
     '''
@@ -90,10 +90,23 @@ def get_year_week_frame(game, play_player, player, year, week, season_type='Regu
     agg_week_df = super_week_df.groupby('player_id', as_index=False).sum()
 
     # Add in the names of the players from the player frame
-    player_columns = ['player_id', 'full_name']
+    player_columns = ['player_id', 'full_name', 'position']
     agg_week_names_df = agg_week_df.merge(player[player_columns], how='left', on='player_id')
 
     return agg_week_names_df.set_index('full_name')
+
+
+def get_position_year_week_frame(position, game, play_player, player, 
+                                 year, week, season_type='Regular'):
+    '''
+    Input: Str, DataFrame of games, DataFrame for play_player, DataFrame of players, Int, Int, Str
+    Output: DataFrame of stats for a players in given position during a given week
+    '''
+    df = get_year_week_frame(game, play_player, player, year, week, season_type)
+
+    # SOME STUFF HERE TO FILTER WHICH COLUMNS TO KEEP DEPENDING ON THE POSITION 
+
+    return df.query('position == @position')
 
 
 if __name__ == '__main__':
