@@ -74,7 +74,7 @@ def graph_offence_stats_summary(player_game_points, verbose=False, bins=50):
     plt.show()
 
 
-def get_year_week_frame(game, play_player, player, year, week, season_type='Regular'):
+def get_year_week_frame(year, week, game, play_player, player, season_type='Regular'):
     '''
     Input:  DataFrame of games, DataFrame for play_player, DataFrame of players, Int, Int, Str
     Output: DataFrame of stats for a given week
@@ -82,31 +82,54 @@ def get_year_week_frame(game, play_player, player, year, week, season_type='Regu
     Returns DataFrame with all players aggregated stats from a specifc year and week
     '''
     # Make DataFrame games from the specified year, season type and week
-    week_columns = ['gsis_id', 'home_team', 'away_team']
     week_df = game.query('season_type == @season_type & season_year == @year & week == @week')
 
     # Get all of the play information for all of those games
-    super_week_df = week_df[week_columns].merge(play_player, how='left', on='gsis_id')
-    agg_week_df = super_week_df.groupby('player_id', as_index=False).sum()
+    super_week_df = pd.DataFrame(week_df['gsis_id']).merge(play_player, how='left', on='gsis_id')
+    agg_week_df = super_week_df.groupby(['gsis_id', 'player_id'], as_index=False).sum()
 
     # Add in the names of the players from the player frame
-    player_columns = ['player_id', 'full_name', 'position']
+    player_columns = ['player_id', 'full_name', 'position', 'team']
     agg_week_names_df = agg_week_df.merge(player[player_columns], how='left', on='player_id')
+
+    # Add in the home and away teams
+    team_columns = ['gsis_id', 'home_team', 'away_team']
+    agg_week_names_df = agg_week_names_df.merge(week_df[team_columns], how='left', on='gsis_id')
+
+    # Compute opponent
+    opp = lambda x: x.away_team if x.away_team != x.team else x.home_team
+    agg_week_names_df['opponent'] = agg_week_names_df.apply(opp, axis=1)
 
     return agg_week_names_df.set_index('full_name')
 
 
-def get_position_year_week_frame(position, game, play_player, player, 
-                                 year, week, season_type='Regular'):
+def get_position_year_week_frame(position, year, week, 
+                                 game, play_player, player, season_type='Regular'):
     '''
     Input: Str, DataFrame of games, DataFrame for play_player, DataFrame of players, Int, Int, Str
     Output: DataFrame of stats for a players in given position during a given week
     '''
-    df = get_year_week_frame(game, play_player, player, year, week, season_type)
+    # Dictionary of stats by type
+    offence_types = {'pass': ['passing_att', 'passing_cmp', 'passing_cmp_air_yds', 'passing_incmp',
+                              'passing_incmp_air_yds', 'passing_int', 'passing_yds', 'passing_tds'],
+                     'rush': ['rushing_att', 'rushing_loss', 'rushing_loss_yds', 'rushing_yds',
+                              'rushing_tds'],
+                     'recp': ['receiving_rec', 'receiving_tar', 'receiving_yac_yds', 'receiving_yds',
+                              'receiving_tds']}
 
-    # SOME STUFF HERE TO FILTER WHICH COLUMNS TO KEEP DEPENDING ON THE POSITION 
+    # Dictionary of stats by position
+    position_dict = {'QB': offence_types['pass'] + offence_types['rush'],
+                     'RB': offence_types['rush'] + offence_types['recp'],
+                     'WR': offence_types['recp'],
+                     'TE': offence_types['recp']}
+                         
+    df = get_year_week_frame(year, week, game, play_player, player, season_type)
 
-    return df.query('position == @position')
+    position_columns = ['team', 'position', 'opponent'] + \
+                       position_dict[position] + \
+                       ['offensive_points']
+
+    return df.query('position == @position')[position_columns]
 
 
 if __name__ == '__main__':
