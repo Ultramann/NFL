@@ -52,7 +52,7 @@ def make_player_game_points(g, pp_df, p_df, year=None):
     return player_game_points
 
 
-def graph_offence_stats_summary(player_game_points, verbose=False, bins=50):
+def graph_offense_stats_summary(player_game_points, verbose=False, bins=50):
     '''
     Input:  DataFrame of player point per game
     Output: None
@@ -110,7 +110,7 @@ def get_position_year_week_frame(position, year, week,
     Output: DataFrame of stats for a players in given position during a given week
     '''
     # Dictionary of stats by type
-    offence_types = {'pass': ['passing_att', 'passing_cmp', 'passing_cmp_air_yds', 'passing_incmp',
+    offense_types = {'pass': ['passing_att', 'passing_cmp', 'passing_cmp_air_yds', 'passing_incmp',
                               'passing_incmp_air_yds', 'passing_int', 'passing_yds', 'passing_tds'],
                      'rush': ['rushing_att', 'rushing_loss', 'rushing_loss_yds', 'rushing_yds',
                               'rushing_tds'],
@@ -118,10 +118,10 @@ def get_position_year_week_frame(position, year, week,
                               'receiving_tds']}
 
     # Dictionary of stats by position
-    position_dict = {'QB': offence_types['pass'] + offence_types['rush'],
-                     'RB': offence_types['rush'] + offence_types['recp'],
-                     'WR': offence_types['recp'],
-                     'TE': offence_types['recp']}
+    position_dict = {'QB': offense_types['pass'] + offense_types['rush'],
+                     'RB': offense_types['rush'] + offense_types['recp'],
+                     'WR': offense_types['recp'],
+                     'TE': offense_types['recp']}
                          
     df = get_year_week_frame(year, week, game, play_player, player, season_type)
 
@@ -138,5 +138,5 @@ if __name__ == '__main__':
     pp['offensive_points'] = fandual_points_offense(pp)
     player_game_points = make_player_game_points(game, pp, player)
     player_game_points_2014 = make_player_game_points(game, pp, player, year=2014)
-    graph_offence_stats_summary(player_game_points)
+    graph_offense_stats_summary(player_game_points)
 
