@@ -20,7 +20,7 @@ def fandual_points_offense(in_df):
     Input:  DataFrame matching play_player format of nfldb
     Output: Series containing FanDual points for each row in input DataFrame
 
-    based on https://www.fanduel.com/rules
+    Based on https://www.fanduel.com/rules
     Currently only calculates points for offensive players
     '''
     fandual_points = \
@@ -106,7 +106,7 @@ def get_year_week_frame(year, week, game, play_player, player, season_type='Regu
 def get_position_year_week_frame(position, year, week, 
                                  game, play_player, player, season_type='Regular'):
     '''
-    Input: Str, DataFrame of games, DataFrame for play_player, DataFrame of players, Int, Int, Str
+    Input:  Str, DataFrame of games, DataFrame for play_player, DataFrame of players, Int, Int, Str
     Output: DataFrame of stats for a players in given position during a given week
     '''
     # Dictionary of stats by type
@@ -125,7 +125,7 @@ def get_position_year_week_frame(position, year, week,
                          
     df = get_year_week_frame(year, week, game, play_player, player, season_type)
 
-    position_columns = ['team', 'position', 'opponent'] + \
+    position_columns = ['position', 'team', 'opponent'] + \
                        position_dict[position] + \
                        ['offensive_points']
 
