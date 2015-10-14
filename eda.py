@@ -35,9 +35,9 @@ def make_player_game_points(nfl_frames, year=None):
     return player_game_points
 
 
-def graph_offense_stats_summary(player_game_points, verbose=False, bins=50):
+def graph_offense_stats_summary(player_game_points, verbose=False, bins=50, title=''):
     '''
-    Input:  DataFrame of player point per game
+    Input:  DataFrame with player fanduel points
     Output: None
 
     Graphs fanduel point production by position for offensive players, optionally prints description 
@@ -53,6 +53,7 @@ def graph_offense_stats_summary(player_game_points, verbose=False, bins=50):
 
     # Cycle through the group by object and graph the data for each position
     plt.figure(figsize=(15, 8))
+    plt.suptitle(title, fontsize=20)
     for i, pos in enumerate(offensive_gb, 1):
         plt.subplot(2, 3, i)
         plt.hist(pos[1].values, bins)
@@ -65,4 +66,4 @@ if __name__ == '__main__':
     player_game_points = make_player_game_points(nfl_frames)
     player_game_points_2014 = make_player_game_points(nfl_frames, year=2014)
     graph_offense_stats_summary(player_game_points)
-
+    graph_offense_stats_summary(nfl_frames.get_year_week_frame(2015, 3))
