@@ -35,7 +35,7 @@ def make_player_game_points(nfl_frames, year=None):
     return player_game_points
 
 
-def graph_offense_stats_summary(player_game_points, verbose=False, bins=50, title=''):
+def graph_offense_stats_summary(points_df, verbose=False, bins=50, title=''):
     '''
     Input:  DataFrame with player fanduel points
     Output: None
@@ -45,7 +45,7 @@ def graph_offense_stats_summary(player_game_points, verbose=False, bins=50, titl
     # Only want to grab the offensive point producing positions
     offensive_positions = ['QB', 'RB', 'WR', 'TE', 'K']
     offensive_query = 'position in {}'.format(offensive_positions)
-    offensive_gb = player_game_points.query(offensive_query).groupby('position').fanduel_points
+    offensive_gb = points_df.query(offensive_query).groupby('position').fanduel_points
 
     if verbose:
         print('Summary statistics of FanDual points by position')
@@ -60,10 +60,11 @@ def graph_offense_stats_summary(player_game_points, verbose=False, bins=50, titl
         plt.title(pos[0])
     plt.show()
 
+
 if __name__ == '__main__':
     nfl_frames = NFL_Frames() 
     check_player_table(nfl_frames.player)
     player_game_points = make_player_game_points(nfl_frames)
     player_game_points_2014 = make_player_game_points(nfl_frames, year=2014)
-    graph_offense_stats_summary(player_game_points)
-    graph_offense_stats_summary(nfl_frames.get_year_week_frame(2015, 3))
+    graph_offense_stats_summary(player_game_points, title='All Time')
+    graph_offense_stats_summary(nfl_frames.get_year_week_frame(2015, 3), title='Week 3 - 2015')
