@@ -119,7 +119,7 @@ class NFL_Frames(object):
                              
         df = self.get_year_week_frame(year, week, season_type)
 
-        position_columns = ['position', 'team', 'opponent'] + \
+        position_columns = ['player_id', 'position', 'team', 'opponent'] + \
                            position_dict[position] + \
                            ['fanduel_points']
 
