@@ -11,12 +11,13 @@ class NFL_Frames(object):
             self.get(tables, conn)
         self._make_fanduel_points()
 
-    def get(self, tables, conn):
+    def get(self, conn):
         '''
         Input:  List of table names to get from nfldb
 
         Makes attributes corresponding to the table names
         '''
+        tables = ['game', 'play_player', 'player']
         frames = [pd.read_sql('SELECT * FROM {}'.format(table), conn) for table in tables]
         self.game, self.play_player, self.player = frames
 
