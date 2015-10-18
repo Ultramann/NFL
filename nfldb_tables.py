@@ -1,43 +1,25 @@
 import psycopg2
 import pandas as pd
 
-class nfldb_conn(object):
-    '''
-    Class to easily query the nfl database for entire tables
-    '''
-    def __init__(self):
-        self.conn = psycopg2.connect(dbname='nfldb')
-    
-    def close(self):
-        self.conn.close()
-
-    def get_table(self, table_name):
-        '''
-        Input:  Str with name of table from nfldb
-        Output: Dataframe of entire table
-        '''
-        return pd.read_sql('SELECT * FROM {}'.format(table_name), self.conn)
-
-
 class NFL_Frames(object):
     '''
     Class to hold the most frequently used nfldb tables (game, play_player, player) 
     as frames all bundled together
     '''
     def __init__(self, tables=['game', 'play_player', 'player']):
-        self.get(tables) 
+        with psycopg2.connect(dbname='nfldb') as conn:
+            self.get(tables, conn)
         self._make_fanduel_points()
 
-    def get(self, tables):
+    def get(self, conn):
         '''
         Input:  List of table names to get from nfldb
 
         Makes attributes corresponding to the table names
         '''
-        nfldb = nfldb_conn()
-        frames = [nfldb.get_table(table) for table in tables]
+        tables = ['game', 'play_player', 'player']
+        frames = [pd.read_sql('SELECT * FROM {}'.format(table), conn) for table in tables]
         self.game, self.play_player, self.player = frames
-        nfldb.close()
 
     def _make_fanduel_points(self):
         '''
