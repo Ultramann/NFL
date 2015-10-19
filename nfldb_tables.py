@@ -1,14 +1,14 @@
 import psycopg2
 import pandas as pd
 
-class NFL_Frames(object):
+class NFLFrames(object):
     '''
     Class to hold the most frequently used nfldb tables (game, play_player, player) 
     as frames all bundled together
     '''
-    def __init__(self, tables=['game', 'play_player', 'player']):
+    def __init__(self):
         with psycopg2.connect(dbname='nfldb') as conn:
-            self.get(tables, conn)
+            self.get(conn)
         self._make_fanduel_points()
 
     def get(self, conn):
@@ -29,20 +29,20 @@ class NFL_Frames(object):
         fanduel_points = ( 0.1 * self.play_player.rushing_yds 
                          + 6 * self.play_player.rushing_tds 
                          + 0.04 * self.play_player.passing_yds 
-                         + 4*self.play_player.passing_tds 
-                         - 1*self.play_player.passing_int 
-                         + 0.1*self.play_player.receiving_yds 
-                         + 6*self.play_player.receiving_tds 
-                         + 0.5*self.play_player.receiving_rec 
-                         + 6*self.play_player.kickret_tds 
-                         + 6*self.play_player.puntret_tds 
-                         - 2*self.play_player.fumbles_lost 
-                         + 6*self.play_player.fumbles_rec_tds 
-                         + 2*self.play_player.receiving_twoptm 
-                         + 3*self.play_player.kicking_fgm 
-                         + 1*(self.play_player.kicking_fgm_yds>=40) 
-                         + 1*(self.play_player.kicking_fgm_yds>=50) 
-                         + 1*self.play_player.kicking_xpmade)
+                         + 4 * self.play_player.passing_tds 
+                         - 1 * self.play_player.passing_int 
+                         + 0.1 * self.play_player.receiving_yds 
+                         + 6 * self.play_player.receiving_tds 
+                         + 0.5 * self.play_player.receiving_rec 
+                         + 6 * self.play_player.kickret_tds 
+                         + 6 * self.play_player.puntret_tds 
+                         - 2 * self.play_player.fumbles_lost 
+                         + 6 * self.play_player.fumbles_rec_tds 
+                         + 2 * self.play_player.receiving_twoptm 
+                         + 3 * self.play_player.kicking_fgm 
+                         + 1 * (self.play_player.kicking_fgm_yds >= 40) 
+                         + 1 * (self.play_player.kicking_fgm_yds >= 50) 
+                         + 1 * self.play_player.kicking_xpmade)
 
         self.play_player['fanduel_points'] = fanduel_points
 
