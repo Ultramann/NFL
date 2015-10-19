@@ -4,7 +4,7 @@ from nfldb_tables import NFL_Frames
 from scipy.sparse import csr_matrix as csrm
 
 
-class Position_NMF(object):
+class PositionNMF(object):
     '''
     Class to hold the model created with NMF for a position, along with all the associated meta-data
     '''
@@ -16,7 +16,7 @@ class Position_NMF(object):
 
     def get_position_skill(self):
         '''
-        Output: DataFrame - index = player_ids, single column of data corresponding to the latent
+        Output: DataFrame - index=player_ids, single column of data corresponding to the latent
                 feature from the nmf model
         '''
         position_skill = pd.DataFrame(self.model.basis().toarray(), 
@@ -35,7 +35,7 @@ class Position_NMF(object):
 
         return skill_names.sort(columns=['skill'], ascending=False)
 
-class NMF_Skillz(object):
+class PositionNMFFactory(object):
     '''
     Class for decomposing nfl data with non-negative factorization
     ''' 
@@ -65,14 +65,14 @@ class NMF_Skillz(object):
         Input:  Str - position for which to get the NMF decomposed latent features
         Output: DataFrame - player names and latent skills for position
         '''
-        position_sparse, position_df, player_ids, opponents = self.sparseify_position_data(position)
+        position_sparse, position_df, player_ids, opponents = self.sparsify_position_data(position)
         position_nmf_model = self.decompose_position(position_sparse, player_ids, opponents)
 
-        position_model = Position_NMF(position_df, player_ids, opponents, position_nmf_model)
+        position_model = PositionNMF(position_df, player_ids, opponents, position_nmf_model)
 
         return position_model
 
-    def sparseify_position_data(self, position):
+    def sparsify_position_data(self, position):
         '''
         Input:  Str - position for which to get the NMF decomposed latent features
         Output: Sparse matrix (player count in position x opponents) of fanduel points scored,
@@ -113,6 +113,6 @@ class NMF_Skillz(object):
 
 
 if __name__ == '__main__':
-    skillz = NMF_Skillz(2015, 5)
+    skillz = PositionNMFFactory(2015, 5)
     wr_2015_5 = skillz.get_position('WR')
     te_2015_5 = skillz.get_position('TE')
