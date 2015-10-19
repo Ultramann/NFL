@@ -6,9 +6,9 @@ class NFL_Frames(object):
     Class to hold the most frequently used nfldb tables (game, play_player, player) 
     as frames all bundled together
     '''
-    def __init__(self, tables=['game', 'play_player', 'player']):
+    def __init__(self):
         with psycopg2.connect(dbname='nfldb') as conn:
-            self.get(tables, conn)
+            self.get(conn)
         self._make_fanduel_points()
 
     def get(self, conn):
