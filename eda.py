@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from nfldb_tables import NFL_Frames
+from nfldb_tables import NFLFrames
 
 
 def check_player_table(player):
@@ -62,7 +62,7 @@ def graph_offense_stats_summary(points_df, verbose=False, bins=50, title=''):
 
 
 if __name__ == '__main__':
-    nfl_frames = NFL_Frames() 
+    nfl_frames = NFLFrames() 
     check_player_table(nfl_frames.player)
     player_game_points = make_player_game_points(nfl_frames)
     player_game_points_2014 = make_player_game_points(nfl_frames, year=2014)
