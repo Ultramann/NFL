@@ -24,6 +24,10 @@ class PositionNMF(object):
         return position_skill
 
     def view_sorted_position_skill(self):
+        '''
+        Output: DataFrame - only has names of players and 'skill' column from NMF to eyeball
+                efficacy of model
+        '''
         # Prepare to merge back with player names for human readability
         names_columns = ['player_id', 'full_name']
         position_names = self.df[names_columns]
