@@ -18,11 +18,24 @@ class PositionNMF(object):
     def get_position_skill(self):
         '''
         Output: DataFrame - index=player_ids, single column of data corresponding to the latent
-                feature from the nmf model
+                feature from the nmf model relating to player skill
         '''
         position_skill = pd.DataFrame(self.model.basis().toarray(), 
-                                      index=self.player_ids, columns=['skill'])
+                                      index=self.player_ids, 
+                                      columns=['skill'])
         return position_skill
+
+    def get_defense_skill(self):
+        '''
+        Output: DataFrame - index=opponent (aka defense), single column of data corresponding 
+                to the latent feature from the nmf model relating the defense's inability to 
+                defend against the position
+        '''
+        defense_skill = pd.DataFrame(self.model.coef().toarray().T,
+                                     index=self.opponents, 
+                                     columns=['swiss']) 
+
+        return defense_skill
 
     def view_sorted_position_skill(self):
         '''
@@ -41,6 +54,13 @@ class PositionNMF(object):
         skills = skill_names.groupby(names_columns).first()
 
         return skills.sort(columns=['skill'], ascending=False)
+
+    def view_sorted_defense_skill(self):
+        '''
+        Output: DataFrame - only has defense name and 'swiss' columns, names for how like swiss
+                cheese the defense is against the position
+        '''
+        return self.get_defense_skill().sort('swiss')
 
 class PositionNMFFactory(object):
     '''
