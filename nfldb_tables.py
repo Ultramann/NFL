@@ -77,7 +77,7 @@ class NFLFrames(object):
         opp = lambda x: x.away_team if x.away_team != x.team else x.home_team
         agg_week_names_df['opponent'] = agg_week_names_df.apply(opp, axis=1)
 
-        return agg_week_names_df.set_index('full_name')
+        return agg_week_names_df
 
     def get_position_year_week_frame(self, position, year, week, season_type='Regular'):
         '''
