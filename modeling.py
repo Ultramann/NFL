@@ -1,6 +1,6 @@
 import nimfa
 import pandas as pd
-from nfldb_tables import NFL_Frames
+from nfldb_tables import NFLFrames
 from scipy.sparse import csr_matrix as csrm
 
 
@@ -8,11 +8,12 @@ class PositionNMF(object):
     '''
     Class to hold the model created with NMF for a position, along with all the associated meta-data
     '''
-    def __init__(self, position_df, player_ids, opponents, model):
+    def __init__(self, position_df, player_ids, opponents, model, week):
         self.df = position_df
         self.player_ids = player_ids
         self.opponents = opponents
         self.model = model
+        self.week = week
 
     def get_position_skill(self):
         '''
@@ -37,7 +38,9 @@ class PositionNMF(object):
                                             right_index=True,
                                             left_on='player_id') 
 
-        return skill_names.sort(columns=['skill'], ascending=False)
+        skills = skill_names.groupby(names_columns).first()
+
+        return skills.sort(columns=['skill'], ascending=False)
 
 class PositionNMFFactory(object):
     '''
@@ -46,7 +49,7 @@ class PositionNMFFactory(object):
     def __init__(self, year, till_week):
         self.year = year
         self.till_week = till_week
-        self.nfl_frames = NFL_Frames()
+        self.nfl_frames = NFLFrames()
         self.make_year_till_week()
 
     def make_year_till_week(self):
@@ -62,7 +65,7 @@ class PositionNMFFactory(object):
             return self.nfl_frames.get_year_week_frame(self.year, week)
 
         weeks = range(1, self.till_week + 1)
-        self.year_till_week = pd.concat([self.get_year_week(week) for week in weeks], axis=0)
+        self.year_till_week = pd.concat([get_year_week(week) for week in weeks], axis=0)
 
     def get_position_model(self, position): 
         '''
@@ -72,7 +75,8 @@ class PositionNMFFactory(object):
         position_sparse, position_df, player_ids, opponents = self.sparsify_position_data(position)
         position_nmf_model = self.decompose_position(position_sparse, player_ids, opponents)
 
-        position_model = PositionNMF(position_df, player_ids, opponents, position_nmf_model)
+        position_model = PositionNMF(position_df, player_ids, opponents, 
+                                     position_nmf_model, self.till_week)
 
         return position_model
 
@@ -117,6 +121,6 @@ class PositionNMFFactory(object):
 
 
 if __name__ == '__main__':
-    skillz = PositionNMFFactory(2015, 5)
-    wr_2015_5 = skillz.get_position('WR')
-    te_2015_5 = skillz.get_position('TE')
+    skill_factory = PositionNMFFactory(2015, 5)
+    wr_2015_5 = skill_factory.get_position_model('WR')
+    te_2015_5 = skill_factory.get_position_model('TE')
