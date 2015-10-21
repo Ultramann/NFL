@@ -66,11 +66,12 @@ class PositionNMFFactory(object):
     '''
     Class for decomposing nfl data with non-negative factorization
     ''' 
-    def __init__(self, year, till_week):
+    def __init__(self, year, till_week, nfl_frames=None):
         self.year = year
         self.till_week = till_week
-        self.nfl_frames = NFLFrames()
+        self.nfl_frames = NFLFrames() if nfl_frames is None else nfl_frames
         self.make_year_till_week()
+
 
     def make_year_till_week(self):
         '''
