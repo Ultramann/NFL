@@ -17,13 +17,19 @@ def year_week_position_rmse(year, week, position, predictions, nfl_frames):
 
     return rmse
 
-if __name__ == '__main__':
-    nfl_frames = NFLFrames()
-    position = 'WR'
-    year = 2015
-    week = 5
+def check_model(position, year, week, nfl_frames):
     skill_factory = PositionNMFFactory(year, week, nfl_frames)
     wr_2015_5 = skill_factory.get_position_model(position)
     week_6_opps = nfl_frames.get_year_weeks_opponents(year=year, week=week+1)
     week_6_predictions = wr_2015_5.predict(week_6_opps)
     wr_2015_6_rmse = year_week_position_rmse(year, week, position, week_6_predictions, nfl_frames)
+
+    check_model_string = 'STD in fanduel points:\t{}\nRMSE in predictions:\t{}'
+    print check_model_string.format(wr_2015_5.df.fanduel_points.std(), wr_2015_6_rmse)
+
+if __name__ == '__main__':
+    nfl_frames = NFLFrames()
+    position = 'WR'
+    year = 2015
+    week = 5
+    check_model(position, year, week, nfl_frames)
