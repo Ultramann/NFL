@@ -48,7 +48,7 @@ class NFLFrames(object):
 
     def get_year_week_frame(self, year, week, season_type='Regular'):
         '''
-        Input:  Year as Int, Week as Int, NFL_Frame, Str
+        Input:  Year - Int, Week - Int, Str
         Output: DataFrame of stats for a given week
 
         Returns DataFrame with all players aggregated stats from a specifc year and week
@@ -79,6 +79,22 @@ class NFLFrames(object):
 
         return agg_week_names_df
 
+    def get_year_weeks_opponents(self, year, week, season_type='Regular'):
+        '''
+        Input:  Year - Int, Week - Int, Str
+        Output: DataFrame of opponents for each team for the given year and week
+        '''
+        # Make DataFrame games from the specified year, season type and week
+        query_string = 'season_type == @season_type & season_year == @year & week == @week'
+        week_df = self.game.query(query_string)
+        
+        team_away = ['home_team', 'away_team']
+        team_opp_df = pd.concat([week_df[team_away], week_df[team_away[::-1]]], axis=0)
+        team_opp_df.columns = ['team', 'opponent']
+
+        return team_opp_df.reset_index(drop=True)
+
+# Note: I DON'T THINK I'M GOING TO NEED THIS ANYMORE, PROBABLY WILL DELETE SOON
     def get_position_year_week_frame(self, position, year, week, season_type='Regular'):
         '''
         Input:  Str, Year as Int, Week as Int, NFL_Frames, Str

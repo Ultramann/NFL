@@ -62,6 +62,32 @@ class PositionNMF(object):
         '''
         return self.get_defense_skill().sort('swiss')
 
+    def predict(self, opponents):
+        '''
+        Input:  DataFrame - Opponent pairs
+        Output: DataFrame - predicted point production for the given opponents
+        '''
+        estimate_target = self.model.fitted().toarray()
+        estimate_target_df = pd.DataFrame(estimate_target, 
+                                          index=self.player_ids, 
+                                          columns=self.opponents)
+        player_opps = self.df[['player_id', 'team']].drop_duplicates()
+
+        estimate_target_opp_df = player_opps.merge(right=estimate_target_df,
+                                                   how='left',
+                                                   left_on='player_id',
+                                                   right_index=True)
+
+        long_predictions_df = pd.melt(estimate_target_opp_df, 
+                                      id_vars=['player_id', 'team'], 
+                                      var_name='opponent', 
+                                      value_name='prediction')
+
+        week_predictions_df = long_predictions_df.merge(right=opponents,
+                                                        how='inner',
+                                                        on=['team', 'opponent'])
+        return week_predictions_df
+
 class PositionNMFFactory(object):
     '''
     Class for decomposing nfl data with non-negative factorization
