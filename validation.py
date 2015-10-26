@@ -1,5 +1,6 @@
 from nfldb_tables import NFLFrames
 from modeling import PositionNMFFactory
+from sklearn.metrics import mean_squared_error
 
 def year_week_position_rmse(year, week, position, predictions, nfl_frames):
     '''
@@ -7,14 +8,14 @@ def year_week_position_rmse(year, week, position, predictions, nfl_frames):
             DataFrame - predictions against, NFLFrames
     Output: RMSE between the predicted values for year-week and actual values from year-week
     '''
+    import pdb
+    pdb.set_trace()
     week_position_df = nfl_frames.get_year_week_frame(year, week).query('position == @position')
-    week_postion_predictions_df = week_position_df.merge(right=predictions,
+    week_position_pred_df = week_position_df.merge(right=predictions,
                                                          how='inner',
                                                          on='player_id')
-    week_postion_predictions_df.eval('error = fanduel_points - prediction')
-    
-    rmse =  ((week_postion_predictions_df.error.values ** 2) ** 0.5).mean()
-
+    rmse = mean_squared_error(  week_position_pred_df.fanduel_points,
+                                week_position_pred_df.prediction) ** .5
     return rmse
 
 def check_model(position, year, week, nfl_frames):
