@@ -1,27 +1,11 @@
 import nimfa
 import pandas as pd
-from nfldb_tables import NFLFrames
 from scipy.sparse import csr_matrix as csrm
-
-positions = ['QB', 'TE', 'RB', 'K', 'WR']
-
-def get_yr_until_wk(year, till_week):
-    '''
-    Input: Integers denoting the year/season and what week to collect data to.
-    Output:  DataFrame containing player_ids, opponent and fanduel points for season 
-    up until week in question
-    '''
-    nfl_frames = NFLFrames()
-    weeks = range(1, till_week+1)
-    year_till_week = pd.concat([nfl_frames.get_year_week_frame(year, week) \
-                         for week in weeks], axis=0)
-    #dropping columns because many don't make sense at this level of aggregation
-    cols_to_keep = ['player_id', 'fanduel_points', 'full_name', 'position', \
-                    'team', 'opponent']
-    return year_till_week.ix[:, cols_to_keep]
+from data_prep_tools import positions_list
 
 def nmf_all_positions(df_with_points):
-    decomposition_results = [nmf_one_position(df_with_points, position) for position in positions]
+    decomposition_results = [nmf_one_position(df_with_points, position) \
+                                for position in positions_list]
     offense = pd.concat([results['offense'] for results in decomposition_results])
     defense = pd.concat([results['defense'] for results in decomposition_results])
     return offense, defense
@@ -81,26 +65,14 @@ def pred_from_factorized_skills(input_df):
     '''
     Input: DataFrame with off_factorized_skill and def_factorized_skill for each game we want
             predictions for.
-    Output: Series containing predicted points for each game/row in the input data set 
+    Output: DataFrame with predicted pointed points for each player in input_df
     '''
-    return input_df.off_factorized_skill * input_df.def_factorized_skill
+    out = pd.DataFrame({'player_id': input_df.player_id,
+                        'pred': input_df.off_factorized_skill * input_df.def_factorized_skill
+                        })
+    return out
 
-def get_preds_to_make(year, wk):
-    '''
-    Gets DataFrame with list of players to predict on, their positions, opponents, etc.
-    Not meant to have features to be used as predictors
-    '''
-    historical_data = get_yr_until_wk(year, wk)
-    opponents = nfl_frames.get_year_weeks_opponents(year=year, week=wk)
-    player_data = historical_data.ix[:,['player_id', 'full_name', 'position', 'team']].drop_duplicates()
-    player_with_opps = player_data.merge(opponents, how='inner')
-    return player_with_opps
-
-
-if __name__ == '__main__':
-    nfl_frames = NFLFrames()
-    historical_data = get_yr_until_wk(2015, 3)
-    offense, defense = nmf_all_positions(historical_data)
-    preds_to_make = get_preds_to_make(2015, 4)
-    preds_with_o_skill = preds_to_make.merge(offense, how='inner')
-    all_for_nmf_preds = preds_with_o_skill.merge(defense, how='inner')
+def merge_factorizations_to_main_df(main_df, offense, defense):
+    main_with_o_skill = main_df.merge(offense, how='inner')
+    out = main_with_o_skill.merge(defense, how='inner')
+    return out
