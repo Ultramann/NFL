@@ -85,7 +85,7 @@ def pred_from_factorized_skills(input_df):
     '''
     return input_df.off_factorized_skill * input_df.def_factorized_skill
 
-def get_basic_player_data_for_predicting(year, wk):
+def get_preds_to_make(year, wk):
     '''
     Gets DataFrame with list of players to predict on, their positions, opponents, etc.
     Not meant to have features to be used as predictors
@@ -93,10 +93,14 @@ def get_basic_player_data_for_predicting(year, wk):
     historical_data = get_yr_until_wk(year, wk)
     opponents = nfl_frames.get_year_weeks_opponents(year=year, week=wk)
     player_data = historical_data.ix[:,['player_id', 'full_name', 'position', 'team']].drop_duplicates()
-    player_with_skill = player_data.merge(offense, how='inner')
-    player_with_opps = player_with_skill.merge(opponents, how='left')
+    player_with_opps = player_data.merge(opponents, how='inner')
+    return player_with_opps
+
 
 if __name__ == '__main__':
     nfl_frames = NFLFrames()
     historical_data = get_yr_until_wk(2015, 3)
     offense, defense = nmf_all_positions(historical_data)
+    preds_to_make = get_preds_to_make(2015, 4)
+    preds_with_o_skill = preds_to_make.merge(offense, how='inner')
+    all_for_nmf_preds = preds_with_o_skill.merge(defense, how='inner')
