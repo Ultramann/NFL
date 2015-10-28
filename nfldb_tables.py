@@ -76,7 +76,6 @@ class NFLFrames(object):
         # Compute opponent
         opp = lambda x: x.away_team if x.away_team != x.team else x.home_team
         agg_week_names_df['opponent'] = agg_week_names_df.apply(opp, axis=1)
-
         return agg_week_names_df
 
     def get_year_weeks_opponents(self, year, week, season_type='Regular'):
@@ -87,39 +86,11 @@ class NFLFrames(object):
         # Make DataFrame games from the specified year, season type and week
         query_string = 'season_type == @season_type & season_year == @year & week == @week'
         week_df = self.game.query(query_string)
-        
+        reversed_home_and_away = pd.DataFrame({ 'home_team': week_df.away_team,
+                                                'away_team': week_df.home_team})
         team_away = ['home_team', 'away_team']
-        team_opp_df = pd.concat([week_df[team_away], week_df[team_away[::-1]]], axis=0)
+        team_opp_df = pd.concat([week_df.ix[:,team_away], 
+                                 reversed_home_and_away.ix[:, team_away]], axis=0)
         team_opp_df.columns = ['team', 'opponent']
-
         return team_opp_df.reset_index(drop=True)
-
-# Note: I DON'T THINK I'M GOING TO NEED THIS ANYMORE, PROBABLY WILL DELETE SOON
-    def get_position_year_week_frame(self, position, year, week, season_type='Regular'):
-        '''
-        Input:  Str, Year as Int, Week as Int, NFL_Frames, Str
-        Output: DataFrame of stats for a players in given position during a given week
-        '''
-        # Dictionary of stats by type
-        offense_types = {'pass': ['passing_att', 'passing_cmp', 'passing_cmp_air_yds', 
-                                  'passing_incmp', 'passing_incmp_air_yds', 'passing_int', 
-                                  'passing_yds', 'passing_tds'],
-                         'rush': ['rushing_att', 'rushing_loss', 'rushing_loss_yds', 
-                                  'rushing_yds', 'rushing_tds'],
-                         'recp': ['receiving_rec', 'receiving_tar', 'receiving_yac_yds', 
-                                  'receiving_yds', 'receiving_tds']}
-
-        # Dictionary of stats by position
-        position_dict = {'QB': offense_types['pass'] + offense_types['rush'],
-                         'RB': offense_types['rush'] + offense_types['recp'],
-                         'WR': offense_types['recp'],
-                         'TE': offense_types['recp']}
-                             
-        df = self.get_year_week_frame(year, week, season_type)
-
-        position_columns = ['player_id', 'position', 'team', 'opponent'] + \
-                           position_dict[position] + \
-                           ['fanduel_points']
-
-        return df.query('position == @position')[position_columns]
 
