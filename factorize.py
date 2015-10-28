@@ -11,7 +11,7 @@ def nmf_all_positions(df_with_points):
     return offense, defense
 
 def nmf_one_position(df_with_points, position):
-    position_df = df_with_points.query('position == @position')
+    position_df = df_with_points[df_with_points.position == position]
     sparse_position_matrix, player_ids, opponents = sparsify(position_df)
     offense_skill, defense_skill = decompose(sparse_position_matrix)
     offense_skill_df = pd.DataFrame({   'player_id': player_ids,
@@ -32,7 +32,7 @@ def sparsify(input_df, clip_positive=True):
             list of player_ids for the sparse matrix, list of opponents for the sparse matrix
     '''
     if clip_positive:
-        input_df.fanduel_points = input_df.fanduel_points.clip(0)
+        input_df['fanduel_points'] = input_df.fanduel_points.clip(0)
     player_ids = input_df.player_id.unique()
     opponents = input_df.opponent.unique()
 

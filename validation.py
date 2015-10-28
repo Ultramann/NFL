@@ -24,13 +24,13 @@ def check_nmf_model(year, week, position="All", nfl_frames=NFLFrames()):
     preds_to_make = get_preds_to_make(year, week+1, nfl_frames)
     for_pred_df = merge_factorizations_to_main_df(preds_to_make, offense, defense)
     if position is not "All":
-        week_actuals_df = week_actuals_df.query("position==@position")
-        for_pred_df = for_pred_df.query("position==@position")
-    preds = pred_from_factorized_skills(for_pred_df)
-    my_rmse = year_week_rmse(week_actuals_df, preds)
+        pos_week_actuals = week_actuals_df.query("position==@position")
+        pos_for_pred = for_pred_df.query("position==@position")
+    preds = pred_from_factorized_skills(pos_for_pred)
+    my_rmse = year_week_rmse(pos_week_actuals, preds)
     
     check_model_string = 'STD in fanduel points:\t{}\nRMSE in predictions:\t{}'
-    print check_model_string.format(week_actuals_df.fanduel_points.std(), my_rmse)
+    print check_model_string.format(pos_week_actuals.fanduel_points.std(), my_rmse)
 
 if __name__ == '__main__':
     nfl_frames = NFLFrames()
