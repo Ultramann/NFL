@@ -75,7 +75,7 @@ def decompose(sparse_mat_to_decompose):
     return offense, defense
 
 
-def pred_from_factorized_skills(input_df):
+def preds_from_factorized_skills(input_df):
     '''
     Input:  DataFrame with off_factorized_skill and def_factorized_skill for 
             each game we want predictions for
