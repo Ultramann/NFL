@@ -1,5 +1,5 @@
-import nimfa
 import pandas as pd
+from sklearn.decomposition import NMF
 from scipy.sparse import csr_matrix as csrm
 from data_prep_tools import positions_list
 
@@ -53,7 +53,8 @@ def sparsify(input_df, clip_positive=True):
 
     matrix_shape = input_df.player_id.nunique(), input_df.opponent.nunique()
     sparse_position_matrix = csrm((points_data, (player_cats, opp_cats)), 
-                                shape=matrix_shape)
+                                  shape=matrix_shape)
+
     return sparse_position_matrix, player_ids, opponents
 
 
@@ -63,14 +64,9 @@ def decompose(sparse_mat_to_decompose):
     Output: Array with factorized skill value for each offensive player. Another Array
             with factorized skill for each team.  Orderings consistent with input matrix.
     '''
-    nmf = nimfa.Snmf(sparse_mat_to_decompose, 
-                     max_iter=10000, 
-                     rank=1,
-                     update='euclidean', 
-                     objective='fro')
-    position_nmf = nmf()
-    offense, defense = position_nmf.basis(), position_nmf.coef()
-    offense, defense = [my_mat.toarray().flatten() for my_mat in (offense, defense)]
+    nmf = NMF(n_components=1, max_iter=10000)
+    offense = nmf.fit_transform(sparse_mat_to_decompose).flatten()
+    defense = nmf.components_.flatten()
 
     return offense, defense
 

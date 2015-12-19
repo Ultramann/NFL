@@ -4,6 +4,7 @@ from factorize import nmf_all_positions, merge_factorizations_to_main_df, \
                       preds_from_factorized_skills
 from data_prep_tools import get_yr_until_wk, get_preds_to_make, positions_list
 
+
 def year_week_rmse(week_actuals_df, preds):
     '''
     Input:  DataFrames with actual fanduel_points and DF with pred column,
