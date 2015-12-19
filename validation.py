@@ -9,31 +9,38 @@ def year_week_rmse(week_actuals_df, preds):
             Both must have player_id
     Output: RMSE between predicted and actual values from year-week
     '''
-    
-    actuals_with_preds_df = week_actuals_df.merge( right=preds,
-                                        how='inner',
-                                        on='player_id')
-    rmse = mean_squared_error(  actuals_with_preds_df.fanduel_points,
-                                actuals_with_preds_df.pred) ** .5
+    actuals_with_preds_df = week_actuals_df.merge(right=preds,
+                                                  how='inner', 
+                                                  on='player_id')
+    rmse = mean_squared_error(actuals_with_preds_df.fanduel_points,
+                              actuals_with_preds_df.pred) ** 0.5
     return rmse
 
-def check_nmf_model(year, week, position="All", nfl_frames=NFLFrames()):
+
+def check_nmf_model(year, week, position='All', nfl_frames=NFLFrames()):
+    '''
+    Input:  Int, Int, Str, NFLFrames instance
+    Output: None
+
+    Prints comparison of standard deviation in fanduel points versus RMSE in predictions.
+    '''
     historical_data = get_yr_until_wk(year, week, nfl_frames)
     offense, defense = nmf_all_positions(historical_data)
     week_actuals_df = nfl_frames.get_year_week_frame(year, week)
-    preds_to_make = get_preds_to_make(year, week+1, nfl_frames)
+    preds_to_make = get_preds_to_make(year, week + 1, nfl_frames)
     for_pred_df = merge_factorizations_to_main_df(preds_to_make, offense, defense)
-    if position is not "All":
-        pos_week_actuals = week_actuals_df.query("position==@position")
-        pos_for_pred = for_pred_df.query("position==@position")
+    if position is not 'All':
+        pos_week_actuals = week_actuals_df.query('position == @position')
+        pos_for_pred = for_pred_df.query('position == @position')
     preds = pred_from_factorized_skills(pos_for_pred)
     my_rmse = year_week_rmse(pos_week_actuals, preds)
     
     check_model_string = 'STD in fanduel points:\t{}\nRMSE in predictions:\t{}'
-    print check_model_string.format(pos_week_actuals.fanduel_points.std(), my_rmse)
+    print(check_model_string.format(pos_week_actuals.fanduel_points.std(), my_rmse))
+    
 
 if __name__ == '__main__':
     nfl_frames = NFLFrames()
     year = 2015
     week = 5
-    check_nmf_model(year, week, "WR", nfl_frames)
+    check_nmf_model(year, week, 'WR', nfl_frames)
