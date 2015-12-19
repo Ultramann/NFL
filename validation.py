@@ -18,9 +18,9 @@ def year_week_rmse(week_actuals_df, preds):
     return rmse
 
 
-def check_nmf_model(year, week, position='All', nfl_frames=NFLFrames()):
+def check_nmf_model(nfl_frames, year, week, position='All'):
     '''
-    Input:  Int, Int, Str, NFLFrames instance
+    Input:  NFLFrames instance, Int, Int, Str
     Output: None
 
     Prints comparison of standard deviation in fanduel points versus RMSE in predictions.
@@ -47,4 +47,4 @@ if __name__ == '__main__':
     nfl_frames = NFLFrames()
     year = 2015
     week = 5
-    check_nmf_model(year, week, 'WR', nfl_frames)
+    check_nmf_model(nfl_frames, year, week, 'WR')

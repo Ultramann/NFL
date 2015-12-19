@@ -1,9 +1,8 @@
-from nfldb_tables import NFLFrames
 import pandas as pd
 
 positions_list = ['QB', 'TE', 'RB', 'K', 'WR']
 
-def get_yr_until_wk(year, till_week, nfl_frames=NFLFrames()):
+def get_yr_until_wk(year, till_week, nfl_frames):
     '''
     Input:  Integers denoting the year/season and what week to collect data to.
             Optionally NFLFrames instance (to save cost of building new one)
