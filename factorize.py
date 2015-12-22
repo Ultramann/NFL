@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.decomposition import NMF
 from scipy.sparse import csr_matrix as csrm
-from data_prep_tools import positions_list
+from positions import positions_list
 
 
 def nmf_all_positions(df_with_points):

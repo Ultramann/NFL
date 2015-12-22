@@ -1,6 +1,7 @@
 import psycopg2
 import pandas as pd
 
+
 class NFLFrames(object):
     '''
     Class to hold the most frequently used nfldb tables (game, play_player, player) 
@@ -76,6 +77,7 @@ class NFLFrames(object):
         # Compute opponent
         opp = lambda x: x.away_team if x.away_team != x.team else x.home_team
         agg_week_names_df['opponent'] = agg_week_names_df.apply(opp, axis=1)
+
         return agg_week_names_df
 
     def get_year_weeks_opponents(self, year, week, season_type='Regular'):
@@ -92,5 +94,5 @@ class NFLFrames(object):
         team_opp_df = pd.concat([week_df.ix[:,team_away], 
                                  reversed_home_and_away.ix[:, team_away]], axis=0)
         team_opp_df.columns = ['team', 'opponent']
-        return team_opp_df.reset_index(drop=True)
 
+        return team_opp_df.reset_index(drop=True)

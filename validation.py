@@ -2,7 +2,7 @@ from nfldb_tables import NFLFrames
 from sklearn.metrics import mean_squared_error
 from factorize import nmf_all_positions, merge_factorizations_to_main_df, \
                       preds_from_factorized_skills
-from data_prep_tools import get_yr_until_wk, get_preds_to_make, positions_list
+from data_prep_tools import get_yr_until_wk, get_preds_to_make
 
 
 def year_week_rmse(week_actuals_df, preds):

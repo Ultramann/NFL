@@ -1,6 +1,6 @@
 import pandas as pd
+from factorize import nmf_all_positions
 
-positions_list = ['QB', 'TE', 'RB', 'K', 'WR']
 
 def get_yr_until_wk(year, till_week, nfl_frames):
     '''
@@ -31,3 +31,14 @@ def get_preds_to_make(year, wk, nfl_frames):
     player_with_opps = player_data.merge(opponents, how='inner')
     return player_with_opps
 
+
+def get_modeling_frame(nfl_frames, year=None, week=None):
+    '''
+    Input:  
+    Output: 
+    '''
+    year = year if year else nfl_frames.game.season_year.max()
+    week = week if week else nfl_frames.game.query('season_year == @year and finished').week.max()
+    for_nmf_df = get_yr_until_wk(year, week, nfl_frames) 
+    offense_skill, defense_skill = nmf_all_positions(for_nmf_df)
+    return offense_skill, defense_skill
