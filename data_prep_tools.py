@@ -15,7 +15,7 @@ def get_yr_until_wk(year, till_week, nfl_frames):
                                axis=0)
     #dropping columns because many don't make sense at this level of aggregation
     cols_to_keep = ['player_id', 'fanduel_points', 'full_name', 'position', 
-                    'team', 'opponent']
+                    'week', 'team', 'opponent']
     return year_till_week.ix[:, cols_to_keep]
 
 

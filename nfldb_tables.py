@@ -71,7 +71,7 @@ class NFLFrames(object):
                                               on='player_id')
 
         # Add in the home and away teams
-        team_columns = ['gsis_id', 'home_team', 'away_team']
+        team_columns = ['gsis_id', 'home_team', 'away_team', 'week']
         agg_week_names_df = agg_week_names_df.merge(week_df[team_columns], how='left', on='gsis_id')
 
         # Compute opponent
