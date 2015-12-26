@@ -4,46 +4,47 @@ from scipy.sparse import csr_matrix as csrm
 from positions import positions_list
 
 
-def nmf_all_positions(df_with_points):
+def nmf_all_positions(stat, df_with_stats):
     '''
-    Input:  DataFrame - containing fanduel_points column, likely output from
+    Input:  Str - player statistic to be factorized 
+            DataFrame - containing stat column, likely output from
                         data_prep_tools.get_yr_until_wk
-    Output: DataFrames - factorized skill for offensive player / defense
+    Output: DataFrames - factorized stat for offensive player / defense
     '''
-    decomposition_results = [nmf_one_position(df_with_points, position)
+    decomposition_results = [nmf_one_position(stat, df_with_stats, position)
                              for position in positions_list]
     offense = pd.concat([results['offense'] for results in decomposition_results])
     defense = pd.concat([results['defense'] for results in decomposition_results])
     return offense, defense
 
 
-def nmf_one_position(df_with_points, position):
+def nmf_one_position(stat, df_with_stats, position):
     '''
     Input:  DataFrame - containing fanduel_points column, likely output from
                         data_prep_tools.get_yr_until_wk
             Str - capitalized position abbreviation
     Output: Dict - (keys: offense/defense, values: nmf decomposed skill)
     '''
-    position_df = df_with_points[df_with_points.position == position]
-    sparse_position_matrix, player_ids, opponents = sparsify(position_df)
+    position_df = df_with_stats[df_with_stats.position == position]
+    sparse_position_matrix, player_ids, opponents = sparsify(stat, position_df)
     offense_skill, defense_skill = decompose(sparse_position_matrix)
     offense_skill_df = pd.DataFrame({'player_id': player_ids,
-                                     'off_factorized_skill': offense_skill})
+                                     'off_factorized_' + stat: offense_skill})
     defense_skill_df = pd.DataFrame({'opponent': opponents,
                                      'position': position,
-                                     'def_factorized_skill': defense_skill})
+                                     'def_factorized_' + stat: defense_skill})
 
     return {'offense': offense_skill_df, 'defense': defense_skill_df}
 
 
-def sparsify(input_df, clip_positive=True):
+def sparsify(stat, input_df, clip_positive=True):
     '''
-    Input:  DataFrame - with player_ids, opponent and fanduel points to be sparsified
+    Input:  DataFrame - with player_ids, opponent and statistics to be sparsified
             Bool - specifies whether to clip all values at 0 (typically for nmf)
     Output: Sparse matrix (player count in position x opponents) of fanduel points scored,
             list of player_ids for the sparse matrix, list of opponents for the sparse matrix
     '''
-    points_data = input_df.fanduel_points.clip(0) if clip_positive else input_df.fanduel_points
+    stat_data = input_df[stat].clip(0) if clip_positive else input_df[stat]
     player_ids = input_df.player_id.unique()
     opponents = input_df.opponent.unique()
 
@@ -52,7 +53,7 @@ def sparsify(input_df, clip_positive=True):
     opp_cats = input_df.opponent.astype('category', categories=opponents).cat.codes
 
     matrix_shape = input_df.player_id.nunique(), input_df.opponent.nunique()
-    sparse_position_matrix = csrm((points_data, (player_cats, opp_cats)), 
+    sparse_position_matrix = csrm((stat_data, (player_cats, opp_cats)), 
                                   shape=matrix_shape)
 
     return sparse_position_matrix, player_ids, opponents
@@ -60,7 +61,7 @@ def sparsify(input_df, clip_positive=True):
 
 def decompose(sparse_mat_to_decompose):
     '''
-    Input:  Sparse Matrix - fanduel points (rows: player_ids, columns: opponents)
+    Input:  Sparse Matrix - statistics (rows: player_ids, columns: opponents)
     Output: Array with factorized skill value for each offensive player. Another Array
             with factorized skill for each team.  Orderings consistent with input matrix.
     '''
@@ -73,7 +74,7 @@ def decompose(sparse_mat_to_decompose):
 
 def preds_from_factorized_skills(input_df):
     '''
-    Input:  DataFrame with off_factorized_skill and def_factorized_skill for 
+    Input:  DataFrame with off_factorized_stat and def_factorized_stat for 
             each game we want predictions for
     Output: DataFrame with predicted pointed points for each player in input_df
     '''
