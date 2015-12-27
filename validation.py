@@ -5,7 +5,7 @@ from factorize import nmf_all_positions, merge_factorizations_to_main_df, \
 from data_prep_tools import get_yr_until_wk, get_preds_to_make
 
 
-def year_week_rmse(week_actuals_df, preds):
+def year_week_rmse(week_actuals_df, preds, stat='fanduel_points'):
     '''
     Input:  DataFrame with actual fanduel_points, DataFrame with pred column.
             Both must have player_id
@@ -14,7 +14,7 @@ def year_week_rmse(week_actuals_df, preds):
     actuals_with_preds_df = week_actuals_df.merge(right=preds,
                                                   how='inner', 
                                                   on='player_id')
-    rmse = mean_squared_error(actuals_with_preds_df.fanduel_points,
+    rmse = mean_squared_error(actuals_with_preds_df[stat],
                               actuals_with_preds_df.pred) ** 0.5
     return rmse
 

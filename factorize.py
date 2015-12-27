@@ -72,15 +72,17 @@ def decompose(sparse_mat_to_decompose):
     return offense, defense
 
 
-def preds_from_factorized_skills(input_df):
+def preds_from_factorized_skills(input_df, stat='fanduel_points'):
     '''
     Input:  DataFrame with off_factorized_stat and def_factorized_stat for 
             each game we want predictions for
     Output: DataFrame with predicted pointed points for each player in input_df
     '''
     out = pd.DataFrame({'player_id': input_df.player_id,
-                        'pred': input_df.off_factorized_skill * \
-                                input_df.def_factorized_skill})
+                        'name': input_df.full_name,
+                        'position': input_df.position,
+                        'pred': input_df['off_factorized_{}'.format(stat)] * \
+                                input_df['def_factorized_{}'.format(stat)]})
     return out
 
 
