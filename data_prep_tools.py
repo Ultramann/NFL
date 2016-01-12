@@ -30,7 +30,7 @@ def get_preds_to_make(year, wk, nfl_frames):
 
 def iter_merge(df_gen, on):
     '''
-    Input:  Generator - yielding DataFrames from gen_factorizations, List - column names
+    Input:  Generator - yielding DataFrames with common column names, List - column names
     Output: DataFrame - with columns from on, and all factorizations
     '''
     df = next(df_gen)
